@@ -8,7 +8,7 @@ export default {
     .setDMPermission(true),
   
   async execute(interaction) {
-    if (interaction.user.id !== process.env.OWNER_ID) {
+    if (interaction.user.id !== process.env.OWNER) {
       await interaction.reply({ 
         content: `Owner only command`, 
         flags: 64
