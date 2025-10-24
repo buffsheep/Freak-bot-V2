@@ -1,3 +1,5 @@
+change owners.json to be your userid
+
 Needs a .env formatted like below
 
 DISCORD_TOKEN=
