@@ -3,52 +3,61 @@ import fs from 'fs';
 import 'dotenv/config';
 
 const commands = [];
-const globalCommands = [];
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 
+// Load all commands
 for (const file of commandFiles) {
     try {
         const commandModule = await import(`./commands/${file}`);
         const command = commandModule.default;
         
         if (command.data && typeof command.data.toJSON === 'function') {
-            if (command.data.name === 'fowardall') {
-                globalCommands.push(command.data.toJSON());
-                console.log(`Loaded for global deployment: ${command.data.name}`);
-            } else {
-                commands.push(command.data.toJSON());
-                console.log(`Loaded for guild deployment: ${command.data.name}`);
-            }
-        } else {
-            console.log(`Skipping ${file}: missing data or toJSON method`);
+            commands.push(command.data.toJSON());
+            console.log(`Loaded command: ${command.data.name}`);
         }
     } catch (error) {
         console.log(`Error loading ${file}:`, error.message);
     }
 }
 
-console.log(`Preparing to deploy ${commands.length} commands to guild and ${globalCommands.length} global commands`);
-
 const rest = new REST().setToken(process.env.DISCORD_TOKEN);
+const clientId = process.env.CLIENT_ID;
 
-try {
-    // Deploy guild commands
-    console.log('Deploying commands to guild');
-    const guildData = await rest.put(
-        Routes.applicationGuildCommands(process.env.CLIENT_ID, '1430826414776778754'),
-        { body: commands }
-    );
-    console.log(`Successfully deployed ${guildData.length} commands to guild!`);
+// Assuming you have a way to get the client instance and its guilds
+// For example, you might need to create a minimal client to fetch guilds
+import { Client, GatewayIntentBits } from 'discord.js';
+const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
-    // Deploy global command (only for "fowardall")
-    if (globalCommands.length > 0) {
-        console.log('Deploying global commands');
-        const globalData = await rest.put(
-            Routes.applicationCommands(process.env.CLIENT_ID),
-            { body: globalCommands }
-        );
-        console.log(`Successfully deployed ${globalData.length} commands globally!`);
+client.once('ready', async () => {
+    console.log(`Logged in as ${client.user.tag}!`);
+    console.log(`Starting command deployment for ${client.guilds.cache.size} guilds...`);
+
+    try {
+        // Loop through all guilds and deploy commands to each one
+        for (const [guildId, guild] of client.guilds.cache) {
+            try {
+                console.log(`Deploying ${commands.length} commands to guild: ${guild.name} (${guildId})`);
+                
+                const data = await rest.put(
+                    Routes.applicationGuildCommands(clientId, guildId),
+                    { body: commands }
+                );
+                
+                console.log(`Successfully deployed ${data.length} commands to ${guild.name}`);
+                
+                // Be kind to the rate limits
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            } catch (error) {
+                console.error(`Failed to deploy commands to guild ${guild.name}:`, error);
+            }
+        }
+        
+        console.log('Finished deploying commands to all guilds.');
+        client.destroy();
+    } catch (error) {
+        console.error('Deployment process failed:', error);
+        client.destroy();
     }
-} catch (error) {
-    console.error('Deployment failed:', error);
-}
+});
+
+client.login(process.env.DISCORD_TOKEN);
