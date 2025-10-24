@@ -21,19 +21,19 @@ for (const file of commandFiles) {
     }
 }
 
-console.log(`Preparing to deploy ${commands.length} commands`);
+console.log(`Preparing to deploy ${commands.length} commands to guild`);
 
 const rest = new REST().setToken(process.env.DISCORD_TOKEN);
 
 try {
-    console.log('Deploying commands');
+    console.log('Deploying commands to guild');
 
     const data = await rest.put(
-        Routes.applicationCommands(process.env.CLIENT_ID),
+        Routes.applicationGuildCommands(process.env.CLIENT_ID, '1430826414776778754'),
         { body: commands }
     );
 
-    console.log(`Successfully deployed ${data.length} commands!`);
+    console.log(`Successfully deployed ${data.length} commands to guild!`);
 } catch (error) {
-    console.error('Global deployment failed:', error);
+    console.error('Guild deployment failed:', error);
 }
