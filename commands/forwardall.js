@@ -13,7 +13,7 @@ export default {
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages),
 
   async execute(interaction) {
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: 64 });
 
     const targetChannelId = interaction.options.getString('target');
     const sourceChannel = interaction.channel;
