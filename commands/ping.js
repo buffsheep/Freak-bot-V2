@@ -7,7 +7,6 @@ export default {
     .setDMPermission(true),
 
   async execute(interaction) {
-    interaction.reply("Pong!");
-    return
+    return interaction.reply("Pong!");
   }
 };

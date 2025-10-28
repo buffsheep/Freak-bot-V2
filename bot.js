@@ -20,7 +20,7 @@ client.once(Events.ClientReady, c => {
   c.user.setActivity('the 2nd one');
 });
 client.on(Events.InteractionCreate, async interaction => {
-  const command = interaction.client.commands.get(interaction.commandName); // ✅
+  const command = interaction.client.commands.get(interaction.commandName); 
   if (!interaction.isChatInputCommand()) return;
 
   if (!command) return;

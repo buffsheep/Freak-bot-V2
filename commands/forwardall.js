@@ -140,7 +140,7 @@ export default {
             }
 
           } catch (error) {
-            console.error('Error forwarding media:', error);
+            throw new Error('Error forwarding media:', error);
             // Continue with next media instead of stopping entirely
             continue;
           }
@@ -154,7 +154,7 @@ export default {
       await interaction.editReply(`Successfully forwarded ${mediaCount} media items from this channel to the target channel as raw files/links.`);
       
     } catch (error) {
-      console.error('Error forwarding media:', error);
+      throw new Error('Error forwarding media:', error);
       
       if (error.code === 50001) {
         await interaction.editReply('I do not have access to one of the channels. Please check my permissions.');
