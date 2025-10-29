@@ -20,17 +20,24 @@ async execute(interaction) {
     let arg1 = interaction.options.getString('edit');
 
     if (!arg0 || !arg1) {
-      return interaction.reply("r(1,2) = replaces input1 with input2, \n");
+      return interaction.reply("q(arg1,arg2) = replaces input1 with input2, \n w(,) = reverses the text, \n e(,) = makes all text uppercase, \n r(,) = makes all text lowercase. \n");
     };
 
     const instr = geninstr(arg1);
     const keys = Object.keys(instr);
     
-    // Reverse the keys to process from first to last
     for (let i = keys.length - 1; i >= 0; i--) {
       const key = keys[i];
-      if (key[0] == "r") {
+      if (key[0] == "q") {
         arg0 = arg0.replace(instr[key][0], instr[key][1]);
+      } else if (key[0] == "w") {
+        arg0 = arg0.split('').reverse().join('');
+      } else if (key[0] == "e") {
+        arg0 = arg0.toUpperCase();
+      } else if (key[0] == "r") {
+        arg0 = arg0.toLowerCase();
+      } else {
+        return interaction.reply("Invalid instruction format.");
       }
     };
 
