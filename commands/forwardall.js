@@ -9,8 +9,7 @@ export default {
         .setName('target')
         .setDescription('The target channel ID to forward media to')
         .setRequired(true)
-    )
-    .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages),
+    ),
 
   async execute(interaction) {
     await interaction.deferReply({ flags: 64 });
