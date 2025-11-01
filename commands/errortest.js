@@ -3,8 +3,7 @@ import { SlashCommandBuilder } from 'discord.js';
 export default {
   data: new SlashCommandBuilder()
     .setName('errortest')
-    .setDescription('Test error handling (owner only)')
-    .setDMPermission(true),
+    .setDescription('Test error handling (owner only)'),
 
   async execute(interaction) {
     if (interaction.user.id !== process.env.OWNER) {

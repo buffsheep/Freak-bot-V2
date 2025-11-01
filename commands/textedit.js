@@ -4,7 +4,6 @@ export default {
   data: new SlashCommandBuilder()
     .setName('textedit')
     .setDescription('leave arguments blank for help')
-    .setDMPermission(true)
     .addStringOption(option =>
         option.setName('text')
             .setDescription('text you want to edit')

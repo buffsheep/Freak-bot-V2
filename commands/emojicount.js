@@ -4,7 +4,6 @@ export default {
   data: new SlashCommandBuilder()
     .setName('emojicount')
     .setDescription('see how many times a emoji has been used')
-    .setDMPermission(true)
     .addStringOption(option =>
         option.setName('emoji')
             .setDescription('emoji you want to count')

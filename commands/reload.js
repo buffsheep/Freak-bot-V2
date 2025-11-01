@@ -4,8 +4,7 @@ import fs from 'fs';
 export default {
   data: new SlashCommandBuilder()
     .setName('reload')
-    .setDescription('Reload all commands (owner only)')
-    .setDMPermission(true),
+    .setDescription('Reload all commands (owner only)'),
   
   async execute(interaction) {
     if (interaction.user.id !== process.env.OWNER) {
