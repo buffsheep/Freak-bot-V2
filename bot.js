@@ -20,8 +20,7 @@ client.once(Events.ClientReady, c => {
   c.user.setActivity('the 2nd one');
 });
 client.on(Events.InteractionCreate, async interaction => {
-  if (interaction.isButton()) {
-    // Handle button interactions
+  if (interaction.isButton()) { 
     if (interaction.customId === 'edit_desc') {
       await interaction.showModal({
         title: 'Edit Description',
@@ -58,13 +57,11 @@ client.on(Events.InteractionCreate, async interaction => {
       });
     }
   } else if (interaction.isModalSubmit()) {
-    // Handle modal submissions
     if (interaction.customId === 'edit_desc_modal') {
       const description = interaction.fields.getTextInputValue('description');
       if (!description || typeof description !== 'string') {
         return await interaction.reply({ content: 'Invalid description provided.', ephemeral: true });
       }
-      // Update database
       const { MongoClient } = await import('mongodb');
       const client = new MongoClient(process.env.MONGODB_URI);
       try {
@@ -93,7 +90,6 @@ client.on(Events.InteractionCreate, async interaction => {
       } catch {
         return await interaction.reply({ content: 'Invalid URL.', ephemeral: true });
       }
-      // Update database
       const { MongoClient } = await import('mongodb');
       const client = new MongoClient(process.env.MONGODB_URI);
       try {
@@ -114,7 +110,6 @@ client.on(Events.InteractionCreate, async interaction => {
       }
     }
   } else {
-    // Handle slash commands
     const command = interaction.client.commands.get(interaction.commandName);
     if (!interaction.isChatInputCommand()) return;
 
