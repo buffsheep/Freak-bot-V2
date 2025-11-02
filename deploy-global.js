@@ -2,7 +2,6 @@ import { REST, Routes } from 'discord.js';
 import fs from 'fs';
 import 'dotenv/config';
 
-// sanitize environment values and wrap in async IIFE so older Node versions work
 function stripQuotes(v) {
   return typeof v === 'string' ? v.replace(/^"(.*)"$/, '$1') : v;
 }
