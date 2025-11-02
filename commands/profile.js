@@ -1,4 +1,5 @@
-import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
+import { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
+import { MongoClient } from 'mongodb';
 
 async function getNicknameById(guild, userId) {
   try {
@@ -13,35 +14,68 @@ async function getNicknameById(guild, userId) {
 export default {
   data: new SlashCommandBuilder()
     .setName('profile')
-    .setDescription('Display your own or someone elses profile')
+    .setDescription('View a user\'s profile')
     .addUserOption(option =>
       option.setName('user')
-        .setDescription('The user to display')
+        .setDescription('The user to view')
         .setRequired(false)),
 
   async execute(interaction) {
-    const targetUser = interaction.options.getUser('user') || interaction.user;
+    await interaction.deferReply();
 
-    const avatarURL = targetUser.displayAvatarURL({ dynamic: true, size: 1024 });
+    if (!process.env.MONGODB_URI) {
+      return await interaction.editReply({ content: 'Database configuration missing. Please check the .env file in the main folder.' });
+    }
 
-    const nickname = await getNicknameById(interaction.guild, targetUser.id);
+    const client = new MongoClient(process.env.MONGODB_URI);
+    let db;
 
-    const exampleEmbed = new EmbedBuilder()
-    .setColor(0x0099FF)
-    .setAuthor({ name: targetUser.tag, iconURL: avatarURL})
-    .setTitle(`${nickname}'s Profile`)
-    .setDescription('Some description here')
-    .setThumbnail('https://i.imgur.com/AfFp7pu.png')
-    .addFields(
-        { name: 'Regular field title', value: 'Some value here' },
-        { name: '\u200B', value: '\u200B' },
-        { name: 'Inline field title', value: 'Some value here', inline: true },
-        { name: 'Inline field title', value: 'Some value here', inline: true },
-    )
-    .setImage('https://i.imgur.com/AfFp7pu.png')
-    .setTimestamp()
-    .setFooter({ text: 'Some footer text', iconURL: 'https://i.imgur.com/AfFp7pu.png' });
+    try {
+      await client.connect();
+      db = client.db('freakbot');
+      const profiles = db.collection('profiles');
 
-    return await interaction.reply({ embeds: [exampleEmbed] });
+      const targetUser = interaction.options.getUser('user') || interaction.user;
+      const avatarURL = targetUser.displayAvatarURL({ dynamic: true, size: 1024 });
+      const nickname = await getNicknameById(interaction.guild, targetUser.id);
+
+      const profile = await profiles.findOne({ userId: targetUser.id });
+
+      const embedColor = 0x0099FF;
+      const embedDescription = (profile?.description && typeof profile.description === 'string') ? profile.description : 'No description set.';
+      const embedThumbnail = (profile?.thumbnail && typeof profile.thumbnail === 'string') ? profile.thumbnail : 'https://i.imgur.com/AfFp7pu.png';
+
+      const exampleEmbed = new EmbedBuilder()
+        .setColor(embedColor)
+        .setAuthor({ name: targetUser.tag, iconURL: avatarURL })
+        .setTitle(`${nickname}'s Profile`)
+        .setDescription(embedDescription)
+        .setThumbnail(embedThumbnail)
+        .setTimestamp();
+
+      let components = [];
+      if (targetUser.id === interaction.user.id) {
+        const actionRow = new ActionRowBuilder()
+          .addComponents(
+            new ButtonBuilder()
+              .setCustomId('edit_desc')
+              .setLabel('Edit Description')
+              .setStyle(ButtonStyle.Primary),
+            new ButtonBuilder()
+              .setCustomId('edit_thumb')
+              .setLabel('Edit Thumbnail')
+              .setStyle(ButtonStyle.Primary)
+          );
+        components = [actionRow];
+      }
+
+      return await interaction.editReply({ embeds: [exampleEmbed], components });
+
+    } catch (error) {
+      console.error(error);
+      return await interaction.editReply({ content: 'An error occurred while processing your request.' });
+    } finally {
+      await client.close();
+    }
   }
 };
