@@ -41,7 +41,7 @@ export async function handleProfileInteractions(interaction) {
     if (interaction.customId === 'edit_desc_modal') {
       const description = interaction.fields.getTextInputValue('description');
       if (!description || typeof description !== 'string') {
-        return await interaction.reply({ content: 'Invalid description provided.', ephemeral: true });
+        return await interaction.reply({ content: 'Invalid description provided.', flags: 64 });
       }
       const client = new MongoClient(process.env.MONGODB_URI);
       try {
@@ -53,22 +53,22 @@ export async function handleProfileInteractions(interaction) {
           { $set: { description } },
           { upsert: true }
         );
-        await interaction.reply({ content: 'Profile description updated!', ephemeral: true });
+        await interaction.reply({ content: 'Profile description updated!', flags: 64 });
       } catch (error) {
         console.error(error);
-        await interaction.reply({ content: 'An error occurred while updating your profile.', ephemeral: true });
+        await interaction.reply({ content: 'An error occurred while updating your profile.', flags: 64 });
       } finally {
         await client.close();
       }
     } else if (interaction.customId === 'edit_thumb_modal') {
       const thumbnail = interaction.fields.getTextInputValue('thumbnail');
       if (!thumbnail || typeof thumbnail !== 'string') {
-        return await interaction.reply({ content: 'Invalid thumbnail URL provided.', ephemeral: true });
+        return await interaction.reply({ content: 'Invalid thumbnail URL provided.', flags: 64 });
       }
       try {
         new URL(thumbnail);
       } catch {
-        return await interaction.reply({ content: 'Invalid URL.', ephemeral: true });
+        return await interaction.reply({ content: 'Invalid URL.', flags: 64 });
       }
       const client = new MongoClient(process.env.MONGODB_URI);
       try {
@@ -80,10 +80,10 @@ export async function handleProfileInteractions(interaction) {
           { $set: { thumbnail } },
           { upsert: true }
         );
-        await interaction.reply({ content: 'Profile thumbnail updated!', ephemeral: true });
+        await interaction.reply({ content: 'Profile thumbnail updated!', flags: 64 });
       } catch (error) {
         console.error(error);
-        await interaction.reply({ content: 'An error occurred while updating your profile.', ephemeral: true });
+        await interaction.reply({ content: 'An error occurred while updating your profile.', flags: 64 });
       } finally {
         await client.close();
       }
